@@ -11,12 +11,12 @@
 
 use Indigo\Fuel\Dependency\Container;
 
-$container = new \Fuel\Dependency\Container;
+$container = new Fuel\Dependency\Container;
 
-\Config::load('dependency', true);
+Config::load('dependency', true);
 
 // Registers ServiceProviders
-foreach (\Config::get('dependency.services', array()) as $service)
+foreach (Config::get('dependency.services', array()) as $service)
 {
 	$service = new $service;
 
@@ -24,13 +24,13 @@ foreach (\Config::get('dependency.services', array()) as $service)
 }
 
 // Registers resources
-foreach (\Config::get('dependency.resources', array()) as $identifier => $resource)
+foreach (Config::get('dependency.resources', array()) as $identifier => $resource)
 {
 	$container->register($identifier, $resource);
 }
 
 // Registers singleton resources
-foreach (\Config::get('dependency.singletons', array()) as $identifier => $singleton)
+foreach (Config::get('dependency.singletons', array()) as $identifier => $singleton)
 {
 	$container->registerSingleton($identifier, $singleton);
 }

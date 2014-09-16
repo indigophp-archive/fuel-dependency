@@ -89,6 +89,11 @@ class Container
 	 */
 	public static function __callStatic($method, $arguments)
 	{
+		if ( ! static::$initialized)
+		{
+			throw new LogicException('Container must be initialized first');
+		}
+
 		if ( ! method_exists(static::$container, $method))
 		{
 			throw new BadMethodCallException('Method ' . $method . ' does not exists');
