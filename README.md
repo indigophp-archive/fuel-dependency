@@ -1,6 +1,5 @@
 # Fuel Dependency
 
-[![Build Status](https://travis-ci.org/indigophp/fuel-dependency.svg?branch=develop)](https://travis-ci.org/indigophp/fuel-dependency)
 [![Latest Stable Version](https://poser.pugx.org/indigophp/fuel-dependency/v/stable.png)](https://packagist.org/packages/indigophp/fuel-dependency)
 [![Total Downloads](https://poser.pugx.org/indigophp/fuel-dependency/downloads.png)](https://packagist.org/packages/indigophp/fuel-dependency)
 [![License](https://poser.pugx.org/indigophp/fuel-dependency/license.png)](https://packagist.org/packages/indigophp/fuel-dependency)
