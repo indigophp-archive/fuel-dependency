@@ -23,11 +23,6 @@ use Codeception\TestCase\Test;
  */
 class ContainerTest extends Test
 {
-	public function _before()
-	{
-		Container::_init();
-	}
-
 	/**
 	 * @covers ::getContainer
 	 */

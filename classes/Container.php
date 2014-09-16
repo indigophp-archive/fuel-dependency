@@ -11,6 +11,8 @@
 
 namespace Indigo\Fuel\Dependency;
 
+use Fuel\Dependency\Container as DC;
+use LogicException;
 use BadMethodCallException;
 
 /**
@@ -23,52 +25,59 @@ class Container
 	/**
 	 * Dependency container
 	 *
-	 * @var Fuel\Dependency\Container
+	 * @var DC
 	 */
 	protected static $container;
 
 	/**
+	 * Checks if container is initialized
+	 *
+	 * @var boolean
+	 */
+	protected static $initialized = false;
+
+	/**
 	 * Initialization
+	 *
+	 * @throws LogicException If container is already initialized
 	 *
 	 * @codeCoverageIgnore
 	 */
-	public static function _init()
+	public static function initialize(DC $container = null)
 	{
-		$container = new \Fuel\Dependency\Container;
-
-		\Config::load('dependency', true);
-
-		// Registers ServiceProviders
-		foreach (\Config::get('dependency.services', array()) as $service)
+		if (static::$initialized)
 		{
-			$service = new $service;
-
-			$container->registerService($service);
+			throw new LogicException('Dependency container is already initialized');
 		}
 
-		// Registers resources
-		foreach (\Config::get('dependency.resources', array()) as $identifier => $resource)
+		if (is_null($container))
 		{
-			$container->register($identifier, $resource);
-		}
-
-		// Registers singleton resources
-		foreach (\Config::get('dependency.singletons', array()) as $identifier => $singleton)
-		{
-			$container->registerSingleton($identifier, $singleton);
+			$container = new DC;
 		}
 
 		static::$container = $container;
+
+		static::$initialized = true;
 	}
 
 	/**
 	 * Returns the dependency container
 	 *
-	 * @return Container
+	 * @return DC
 	 */
 	public static function getContainer()
 	{
 		return static::$container;
+	}
+
+	/**
+	 * Checks if container is already initialized
+	 *
+	 * @return boolean
+	 */
+	public static function isInitialized()
+	{
+		return static::$initialized;
 	}
 
 	/**
