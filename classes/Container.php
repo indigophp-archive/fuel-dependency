@@ -12,6 +12,7 @@
 namespace Indigo\Fuel\Dependency;
 
 use Fuel\Dependency\Container as DiC;
+use Fuel\Dependency\ResolveException;
 use RuntimeException;
 use BadMethodCallException;
 
@@ -55,11 +56,16 @@ class Container
 		try
 		{
 			$loader = $dic->resolve('autoloader');
+
+			if ($loader instanceof \Fuel\Core\Autoloader)
+			{
+				throw new ResolveException;
+			}
 		}
 		catch (ResolveException $e)
 		{
 			// Check whether there is a VENDORPATH
-			if (defined('VENDORPATH'))
+			if ( ! defined('VENDORPATH'))
 			{
 				throw new RuntimeException('Container must be initialized in Fuel context');
 			}
