@@ -11,94 +11,163 @@
 
 namespace Indigo\Fuel\Dependency;
 
-use Fuel\Dependency\Container as DC;
-use LogicException;
+use Fuel\Dependency\Container as DiC;
+use RuntimeException;
 use BadMethodCallException;
 
 /**
- * Backports v2 dependency container
+ * Backports v2 Dependency Container
  *
  * @author Márk Sági-Kazár <mark.sagikazar@gmail.com>
  */
 class Container
 {
 	/**
-	 * Dependency container
-	 *
-	 * @var DC
-	 */
-	protected static $container;
-
-	/**
-	 * Checks if container is initialized
-	 *
-	 * @var boolean
+	 * Whether or not the container is initialized
 	 */
 	protected static $initialized = false;
+
+	/**
+	 * Dependency Injection Container
+	 *
+	 * @var DiC
+	 */
+	protected static $dic;
 
 	/**
 	 * Initialization
 	 *
 	 * @throws LogicException If container is already initialized
-	 *
-	 * @codeCoverageIgnore
 	 */
-	public static function initialize(DC $container = null)
+	protected static function initialize()
 	{
 		if (static::$initialized)
 		{
-			throw new LogicException('Dependency container is already initialized');
+			throw new RuntimeException('Container can only be initialized once');
 		}
 
-		if (is_null($container))
+		// get the Dependency Container instance
+		$dic = static::getDic();
+
+		\Config::load('dependency', true);
+
+		// setup the autoloader if none was set yet
+		try
 		{
-			$container = new DC;
+			$loader = $dic->resolve('autoloader');
+		}
+		catch (ResolveException $e)
+		{
+			// Check whether there is a VENDORPATH
+			if (defined('VENDORPATH'))
+			{
+				throw new RuntimeException('Container must be initialized in Fuel context');
+			}
+
+			// fetch the composer autoloader instance
+			$loader = require VENDORPATH.'autoload.php';
+
+			// allow the framework to access the composer autoloader
+			$dic->inject('autoloader', $loader);
 		}
 
-		static::$container = $container;
+		// get all defined namespaces
+		$prefixes = array_merge($loader->getPrefixes(), $loader->getPrefixesPsr4());
 
+		// scan all composer packages loaded for the presence of FuelServiceProviders
+		foreach ($prefixes as $namespace => $paths)
+		{
+			// does this package define a service provider
+			if (class_exists($class = trim($namespace,'\\').'\\Providers\\FuelServiceProvider'))
+			{
+				// register it with the DiC
+				$dic->registerService(new $class);
+			}
+		}
+
+		// register service providers defined in config
+		foreach (\Config::get('dependency.services', []) as $service)
+		{
+			$service = new $service;
+
+			$container->registerService($service);
+		}
+
+		// register resources defined in config
+		foreach (\Config::get('dependency.resources', []) as $identifier => $resource)
+		{
+			$container->register($identifier, $resource);
+		}
+
+		// register singleton resources defined in config
+		foreach (\Config::get('dependency.singletons', []) as $identifier => $singleton)
+		{
+			$container->registerSingleton($identifier, $singleton);
+		}
+
+		// mark we're initialized
 		static::$initialized = true;
 	}
 
 	/**
-	 * Returns the dependency container
+	 * Sets the DiC
 	 *
-	 * @return DC
+	 * @param DiC $dic
+	 *
+	 * @return DiC
 	 */
-	public static function getContainer()
+	public static function setDic(DiC $dic = null)
 	{
-		return static::$container;
+		// if a custom DiC is passed, use that
+		if ($dic)
+		{
+			static::$dic = $dic;
+		}
+
+		// else set one up if not done yet
+		elseif ( ! static::$dic)
+		{
+			// get us a Dependency Container instance
+			static::$dic = new DiC;
+
+			// register the DiC on classname so it can be auto-resolved
+			static::$dic->registerSingleton('Fuel\\Dependency\\Container', function($container)
+			{
+				return $container;
+			});
+		}
+
+		// register the dic for manual resolving
+		static::$dic->registerSingleton('dic', function($container)
+		{
+			return $container;
+		});
+
+		return static::$dic;
 	}
 
 	/**
-	 * Checks if container is already initialized
+	 * Returns the DiC
 	 *
-	 * @return boolean
+	 * @return Dic
 	 */
-	public static function isInitialized()
+	public static function getDic()
 	{
-		return static::$initialized;
+		return static::$dic ?: static::setDic();
 	}
 
 	/**
 	 * Magic methods
 	 */
-
-	/**
-	 * @codeCoverageIgnore
-	 */
 	public static function __callStatic($method, $arguments)
 	{
-		if ( ! static::$initialized)
-		{
-			throw new LogicException('Container must be initialized first');
-		}
+		$dic = static::getDic();
 
-		if ( ! method_exists(static::$container, $method))
+		if ( ! method_exists($dic, $method))
 		{
 			throw new BadMethodCallException('Method ' . $method . ' does not exists');
 		}
 
-		return call_user_func_array(array(static::$container, $method), $arguments);
+		return call_user_func_array([$dic, $method], $arguments);
 	}
 }
