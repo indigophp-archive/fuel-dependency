@@ -39,7 +39,7 @@ class Container
 	 *
 	 * @throws LogicException If container is already initialized
 	 */
-	protected static function initialize()
+	public static function initialize()
 	{
 		if (static::$initialized)
 		{
