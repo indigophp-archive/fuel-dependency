@@ -16,6 +16,9 @@
         "fuelphp/dependency": "dev-master"
     },
     "autoload": {
+        "psr-0": {
+            "Twig\\Extension\\": "lib/"
+        },
         "psr-4": {
             "Indigo\\Fuel\\Dependency\\": "classes/"
         }
