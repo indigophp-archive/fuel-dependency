@@ -149,6 +149,20 @@ class Container
 			return $container;
 		});
 
+		// register child conatainers
+		static::$dic->register('container', function($dic) {
+			$class = get_class($dic);
+
+			$container = new $class;
+
+			$container->registerSingleton('__parent__', function($container) use ($dic)
+			{
+				return $dic;
+			});
+
+			return $container;
+		});
+
 		return static::$dic;
 	}
 
