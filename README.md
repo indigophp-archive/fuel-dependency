@@ -1,8 +1,8 @@
 # Fuel Dependency
 
-[![Latest Stable Version](https://poser.pugx.org/indigophp/fuel-dependency/v/stable.png)](https://packagist.org/packages/indigophp/fuel-dependency)
-[![Total Downloads](https://poser.pugx.org/indigophp/fuel-dependency/downloads.png)](https://packagist.org/packages/indigophp/fuel-dependency)
-[![License](https://poser.pugx.org/indigophp/fuel-dependency/license.png)](https://packagist.org/packages/indigophp/fuel-dependency)
+[![Packagist Version](https://img.shields.io/packagist/v/indigophp/fuel-dependency.svg?style=flat-square)](https://packagist.org/packages/indigophp/fuel-dependency)
+[![Total Downloads](https://img.shields.io/packagist/dt/indigophp/fuel-dependency.svg?style=flat-square)](https://packagist.org/packages/indigophp/fuel-dependency)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 
 **This package is a wrapper around [fuelphp/dependency](https://github.com/fuelphp/dependency) package.**
 
