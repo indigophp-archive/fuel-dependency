@@ -96,19 +96,25 @@ class Container
 		{
 			$service = new $service;
 
-			$container->registerService($service);
+			$dic->registerService($service);
 		}
 
 		// register resources defined in config
 		foreach (\Config::get('dependency.resources', []) as $identifier => $resource)
 		{
-			$container->register($identifier, $resource);
+			$dic->register($identifier, $resource);
 		}
 
 		// register singleton resources defined in config
 		foreach (\Config::get('dependency.singletons', []) as $identifier => $singleton)
 		{
-			$container->registerSingleton($identifier, $singleton);
+			$dic->registerSingleton($identifier, $singleton);
+		}
+
+		// register extensions defined in config
+		foreach (\Config::get('dependency.extensions', []) as $identifier => $extension)
+		{
+			$dic->extension($identifier, $extension);
 		}
 
 		// mark we're initialized
@@ -139,28 +145,14 @@ class Container
 			// register the DiC on classname so it can be auto-resolved
 			static::$dic->registerSingleton('Fuel\\Dependency\\Container', function($container)
 			{
-				return $container;
+				static::$dic;
 			});
 		}
 
 		// register the dic for manual resolving
 		static::$dic->registerSingleton('dic', function($container)
 		{
-			return $container;
-		});
-
-		// register child conatainers
-		static::$dic->register('container', function($dic) {
-			$class = get_class($dic);
-
-			$container = new $class;
-
-			$container->registerSingleton('__parent__', function($container) use ($dic)
-			{
-				return $dic;
-			});
-
-			return $container;
+			static::$dic;
 		});
 
 		return static::$dic;

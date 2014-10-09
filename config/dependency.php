@@ -18,8 +18,9 @@
  * This will allow you to upgrade fuel without losing your custom config.
  */
 
-return array(
-	'services'   => array(),
-	'resources'  => array(),
-	'singletons' => array(),
-);
+return [
+	'services'   => [],
+	'resources'  => [],
+	'singletons' => [],
+	'extensions' => [],
+];
